@@ -1,0 +1,106 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id       String @id @default(cuid())
+  email    String @unique
+  password String
+  name     String
+  createdAt DateTime @default(now())
+}
+
+model Level {
+  id        String     @id @default(cuid())
+  name      String     @unique
+  order     Int
+  filieres  Filiere[]
+  documents Document[]
+  createdAt DateTime   @default(now())
+}
+
+model Filiere {
+  id          String     @id @default(cuid())
+  name        String
+  code        String     @unique
+  slug        String     @unique
+  icon        String?
+  levelId     String?
+  level       Level?     @relation(fields: [levelId], references: [id])
+  moduleCount Int?
+  modules     Module[]
+  documents   Document[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model Module {
+  id          String     @id @default(cuid())
+  name        String
+  code        String
+  hours       Int        @default(0)
+  slug        String?
+  description String?
+  status      String     @default("Active")
+  filiereId   String
+  filiere     Filiere    @relation(fields: [filiereId], references: [id], onDelete: Cascade)
+  documents   Document[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @default(now()) @updatedAt
+}
+
+model Category {
+  id        String     @id @default(cuid())
+  name      String     @unique
+  slug      String     @unique
+  icon      String?
+  documents Document[]
+  createdAt DateTime   @default(now())
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  subject   String
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model Document {
+  id          String     @id @default(cuid())
+  title       String
+  slug        String     @unique
+  description String?
+  fileName    String
+  fileSize    Int
+  fileType    String
+  storageUrl  String
+  year        String?
+  levelId     String
+  level       Level      @relation(fields: [levelId], references: [id])
+  filiereId   String
+  filiere     Filiere    @relation(fields: [filiereId], references: [id])
+  moduleId    String?
+  module      Module?    @relation(fields: [moduleId], references: [id])
+  categoryId  String
+  category    Category   @relation(fields: [categoryId], references: [id])
+  views       Int        @default(0)
+  downloads   Int        @default(0)
+  seoTitle    String?
+  seoDesc     String?
+  published   Boolean    @default(true)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@index([slug])
+  @@index([levelId, filiereId])
+  @@index([moduleId, categoryId])
+  @@index([createdAt])
+}
