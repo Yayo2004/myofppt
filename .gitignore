@@ -51,6 +51,16 @@ fe.err
 fe.log
 frontend.err
 frontend.log
+backend/*.log
+backend/*.err
+
+# local databases
+*.db
+*.db-journal
+
+# Prisma dev database
+backend/prisma/dev.db
+prisma/dev.db
 
 # Windows
 *.bat
