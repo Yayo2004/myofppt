@@ -1,10 +1,12 @@
 export const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
-export const BACKEND_BASE = API_BASE.replace("/api", "");
 
-export function getFileUrl(storageUrl?: string | null): string | null {
-  if (!storageUrl) return null;
-  if (storageUrl.startsWith("http")) return storageUrl;
-  return `${BACKEND_BASE}${storageUrl}`;
+export function getFileDownloadUrl(doc: { id: string }): string {
+  return `/api/download/${doc.id}`;
+}
+
+export function getThumbnailUrl(doc: { id: string; thumbnailUrl?: string | null }): string | null {
+  if (!doc.thumbnailUrl) return null;
+  return `/api/thumbnail/${doc.id}`;
 }
 
 class ApiClient {

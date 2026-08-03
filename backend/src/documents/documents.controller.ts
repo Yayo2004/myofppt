@@ -7,6 +7,7 @@ import { memoryStorage } from 'multer';
 import { AuthGuard } from '@nestjs/passport';
 import { DocumentsService } from './documents.service';
 import { SupabaseService } from '../supabase/supabase.service';
+import { ThumbnailService } from '../thumbnails/thumbnail.service';
 import { CreateDocumentDto, UpdateDocumentDto } from './dto/create-document.dto';
 
 @Controller('documents')
@@ -14,6 +15,7 @@ export class DocumentsController {
   constructor(
     private docs: DocumentsService,
     private supabase: SupabaseService,
+    private thumbnails: ThumbnailService,
   ) {}
 
   @Get()
@@ -57,7 +59,13 @@ export class DocumentsController {
   }))
   async create(@Body() dto: CreateDocumentDto, @UploadedFile() file: Express.Multer.File) {
     const storageUrl = await this.supabase.upload(file.buffer, file.originalname, file.mimetype);
-    return this.docs.create(dto, file, storageUrl);
+
+    let thumbnailUrl: string | null = null;
+    if (file.mimetype.includes('pdf')) {
+      thumbnailUrl = await this.thumbnails.generateAndUpload(file.buffer, file.originalname);
+    }
+
+    return this.docs.create(dto, file, storageUrl, thumbnailUrl);
   }
 
   @Put(':id')

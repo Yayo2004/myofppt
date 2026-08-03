@@ -12,7 +12,7 @@ import { CategoryBadge } from "@/components/ui/category-badge";
 import { CATEGORY_META } from "@/lib/category-meta";
 import { cn, formatFileSize } from "@/lib/utils";
 import { useFilterStore } from "@/stores/filter-store";
-import { getFileUrl, api } from "@/lib/api";
+import { getFileDownloadUrl, api } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
 
 const stepVariants = {
@@ -365,7 +365,7 @@ function StepCategory({ categories, loading, onSelect }: { categories: any[]; lo
 function StepResults({ docs, loading }: { docs: any[]; loading: boolean }) {
   const [previewId, setPreviewId] = useState<string | null>(null);
   async function handleDownload(doc: any) {
-    const url = getFileUrl(doc.storageUrl) || `/files/${doc.fileName}`;
+    const url = getFileDownloadUrl(doc);
     try {
       const res = await fetch(url);
       const blob = await res.blob();
@@ -484,7 +484,7 @@ function StepResults({ docs, loading }: { docs: any[]; loading: boolean }) {
                     ) : (
                       <div className="relative w-full overflow-hidden" style={{ paddingBottom: "min(85%, 700px)" }}>
                         <iframe
-                          src={getFileUrl(doc.storageUrl) || `/files/${doc.fileName}`}
+                          src={getFileDownloadUrl(doc)}
                           className="absolute inset-0 h-full w-full"
                           title={doc.title}
                         />

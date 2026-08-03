@@ -12,7 +12,7 @@ interface QueryParams {
   sort?: string;
 }
 
-export function useDocuments(params: QueryParams = {}) {
+export function useDocuments(params: QueryParams = {}, initialData?: any) {
   return useQuery({
     queryKey: ["documents", params],
     queryFn: () =>
@@ -21,14 +21,16 @@ export function useDocuments(params: QueryParams = {}) {
         page: String(params.page || 1),
         limit: String(params.limit || 20),
       }),
+    initialData,
   });
 }
 
-export function useDocument(slug: string) {
+export function useDocument(slug: string, initialData?: any) {
   return useQuery({
     queryKey: ["document", slug],
     queryFn: () => api.get<any>(`/documents/${slug}`),
     enabled: !!slug,
+    initialData,
   });
 }
 

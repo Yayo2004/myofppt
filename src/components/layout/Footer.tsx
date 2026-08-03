@@ -20,6 +20,7 @@ export function Footer() {
                 width={220}
                 height={60}
                 className="h-14 w-auto"
+                unoptimized
               />
             </Link>
             <p className="mt-4 max-w-md text-sm leading-relaxed text-gray-500">
@@ -103,7 +104,7 @@ export function Footer() {
 
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-gray-100 pt-6 sm:flex-row">
           <p className="text-xs text-gray-400">
-            &copy; {new Date().getFullYear()} OFPPT Platforme. Ressources pédagogiques libres.
+            &copy; {new Date().getFullYear()} myofppt. Ressources pédagogiques libres.
           </p>
           <p className="text-xs text-gray-400">
             Fait avec ❤️ pour la formation professionnelle

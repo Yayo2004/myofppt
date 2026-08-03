@@ -11,16 +11,17 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { BrowseFilterSidebar } from "@/components/browse/BrowseFilterSidebar";
 import { cn } from "@/lib/utils";
+import type { DocumentsPage } from "@/types/document";
 
-export default function BrowseClient() {
+export default function BrowseClient({ initialData }: { initialData?: DocumentsPage | null }) {
   return (
     <Suspense fallback={<div className="mx-auto max-w-7xl px-4 py-8"><Skeleton className="h-96 rounded-xl" /></div>}>
-      <BrowsePage />
+      <BrowsePage initialData={initialData} />
     </Suspense>
   );
 }
 
-function BrowsePage() {
+function BrowsePage({ initialData }: { initialData?: DocumentsPage | null }) {
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -56,7 +57,7 @@ function BrowsePage() {
   if (filiereId) params.filiereId = filiereId;
   if (categoryId) params.categoryId = categoryId;
 
-  const { data, isLoading } = useDocuments({ ...params, sort, page, limit: 20 } as any);
+  const { data, isLoading } = useDocuments({ ...params, sort, page, limit: 20 } as any, initialData);
 
   function applySearch() {
     setPage(1);

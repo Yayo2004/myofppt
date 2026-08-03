@@ -48,8 +48,8 @@ export class DocumentsService {
   }
 
   async findBySlug(slug: string) {
-    const doc = await this.prisma.document.findUnique({
-      where: { slug },
+    const doc = await this.prisma.document.findFirst({
+      where: { OR: [{ slug }, { id: slug }] },
       include: { level: true, filiere: true, module: true, category: true },
     });
     if (!doc) throw new NotFoundException('Document not found');
@@ -70,7 +70,7 @@ export class DocumentsService {
     });
   }
 
-  async create(dto: CreateDocumentDto, file: Express.Multer.File, storageUrl: string) {
+  async create(dto: CreateDocumentDto, file: Express.Multer.File, storageUrl: string, thumbnailUrl?: string | null) {
     const baseSlug = slugify(dto.title);
     const uniqueSlug = `${baseSlug}-${uuid().slice(0, 8)}`;
 
@@ -83,6 +83,7 @@ export class DocumentsService {
         fileSize: file.size,
         fileType: file.mimetype.includes('pdf') ? 'pdf' : file.mimetype.includes('zip') ? 'zip' : 'other',
         storageUrl,
+        thumbnailUrl: thumbnailUrl ?? null,
         year: dto.year,
         levelId: dto.levelId,
         filiereId: dto.filiereId,

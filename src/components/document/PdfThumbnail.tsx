@@ -3,18 +3,29 @@
 import { FileText } from "lucide-react";
 
 interface PdfThumbnailProps {
-  url: string;
+  src?: string | null;
+  alt?: string;
   className?: string;
 }
 
-export function PdfThumbnail({ url, className = "" }: PdfThumbnailProps) {
+export function PdfThumbnail({ src, alt = "", className = "" }: PdfThumbnailProps) {
+  if (!src) {
+    return (
+      <div className={`w-full h-[180px] overflow-hidden rounded-t-xl relative bg-gray-50 flex items-center justify-center ${className}`}>
+        <FileText className="h-10 w-10 text-gray-300" />
+      </div>
+    );
+  }
+
   return (
     <div className={`w-full h-[180px] overflow-hidden rounded-t-xl relative bg-gray-50 ${className}`}>
-      <object data={url} type="application/pdf" width="100%" height="100%">
-        <div className="w-full h-full flex items-center justify-center">
-          <FileText className="h-10 w-10 text-gray-300" />
-        </div>
-      </object>
+      <img
+        src={src}
+        alt={alt}
+        loading="lazy"
+        decoding="async"
+        className="w-full h-full object-cover"
+      />
     </div>
   );
 }

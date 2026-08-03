@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { api, getFileUrl } from "@/lib/api";
+import { api, getFileDownloadUrl } from "@/lib/api";
 import { useFilieres, useLevels, useCategories, useFiliere } from "@/hooks/use-documents";
 import { Modal } from "@/components/admin/Modal";
 import { useToastStore } from "@/stores/toast-store";
@@ -189,7 +189,7 @@ export default function AdminDocumentsPage() {
                     <td className="px-4 py-3 hidden lg:table-cell text-gray-500 text-xs">{formatDate(doc.createdAt)}</td>
                     <td className="px-4 py-3 text-right">
                       <div className="flex items-center justify-end gap-1">
-                        <a href={getFileUrl(doc.storageUrl) || "#"} target="_blank" className="flex h-7 w-7 items-center justify-center rounded-lg text-gray-400 hover:bg-blue-50 hover:text-blue-600 transition-colors">
+                        <a href={getFileDownloadUrl(doc)} target="_blank" className="flex h-7 w-7 items-center justify-center rounded-lg text-gray-400 hover:bg-blue-50 hover:text-blue-600 transition-colors">
                           <Eye className="h-3.5 w-3.5" />
                         </a>
                         <button onClick={() => { setEditDoc(doc); setForm({ title: doc.title, description: doc.description || "", levelId: doc.levelId, filiereId: doc.filiereId, moduleId: doc.moduleId || "", categoryId: doc.categoryId }); }} className="flex h-7 w-7 items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors">

@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import DocumentViewerClient from "@/components/document/DocumentViewerClient";
 import { siteConfig } from "@/config/site";
+import type { AppDoc } from "@/types/document";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
 
-async function getDocument(slug: string) {
+async function getDocument(slug: string): Promise<AppDoc | null> {
   try {
     const res = await fetch(`${API_BASE}/documents/${slug}`, { cache: "no-store" });
     if (!res.ok) return null;
@@ -25,21 +27,28 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   const filiere = doc.filiere?.name || doc.filiereName || "";
-  const module = doc.module?.name || doc.moduleName || "";
+  const moduleName = doc.module?.name || doc.moduleName || "";
   const category = doc.category?.name || doc.categoryName || "";
 
-  const title = `${doc.title}${filiere ? ` — ${filiere}` : ""}${module ? `, ${module}` : ""}`;
-  const description = doc.description
-    ? doc.description.slice(0, 155)
-    : `Consultez et téléchargez "${doc.title}" (${category}) pour la filière ${filiere}${module ? `, module ${module}` : ""}. Document pédagogique OFPPT gratuit.`;
+  const title = doc.seoTitle || `${doc.title}${filiere ? ` — ${filiere}` : ""}${moduleName ? `, ${moduleName}` : ""}`;
+  const description = doc.seoDesc
+    || (doc.description
+      ? doc.description.slice(0, 155)
+      : `Consultez et téléchargez "${doc.title}" (${category}) pour la filière ${filiere}${moduleName ? `, module ${moduleName}` : ""}. Document pédagogique OFPPT gratuit.`);
+
+  const pageUrl = `${siteConfig.url}/documents/${slug}`;
 
   return {
     title,
     description,
+    alternates: { canonical: pageUrl },
     openGraph: {
       title,
       description,
       type: "article",
+      url: pageUrl,
+      siteName: siteConfig.name,
+      locale: "fr_FR",
     },
   };
 }
@@ -48,37 +57,38 @@ export default async function DocumentPage({ params }: Props) {
   const { slug } = await params;
   const doc = await getDocument(slug);
 
-  let breadcrumbLd = "";
+  if (!doc) notFound();
 
-  if (doc) {
-    const filiere = doc.filiere?.name || doc.filiereName || "";
-    const module = doc.module?.name || doc.moduleName || "";
+  const initialDoc = { ...doc, storageUrl: undefined, thumbnailUrl: undefined };
 
-    const items = [
-      { name: "Accueil", url: siteConfig.url },
-    ];
+  const filiere = doc.filiere?.name || doc.filiereName || "";
+  const moduleName = doc.module?.name || doc.moduleName || "";
+  const pageUrl = `${siteConfig.url}/documents/${slug}`;
 
-    if (filiere) {
-      items.push({ name: filiere, url: `${siteConfig.url}/browse?filiereId=${doc.filiereId}` });
-    }
+  const items = [
+    { name: "Accueil", url: siteConfig.url },
+  ];
 
-    if (module && doc.moduleId) {
-      items.push({ name: module, url: `${siteConfig.url}/browse?moduleId=${doc.moduleId}` });
-    }
-
-    items.push({ name: doc.title, url: `${siteConfig.url}/documents/${slug}` });
-
-    breadcrumbLd = JSON.stringify({
-      "@context": "https://schema.org",
-      "@type": "BreadcrumbList",
-      itemListElement: items.map((item, i) => ({
-        "@type": "ListItem",
-        position: i + 1,
-        name: item.name,
-        item: item.url,
-      })),
-    });
+  if (filiere) {
+    items.push({ name: filiere, url: `${siteConfig.url}/browse?filiereId=${doc.filiereId}` });
   }
 
-  return <DocumentViewerClient breadcrumbLd={breadcrumbLd} />;
+  if (moduleName && doc.moduleId) {
+    items.push({ name: moduleName, url: `${siteConfig.url}/browse?moduleId=${doc.moduleId}` });
+  }
+
+  items.push({ name: doc.title, url: pageUrl });
+
+  const breadcrumbLd = JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: items.map((item, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: item.name,
+      item: item.url,
+    })),
+  });
+
+  return <DocumentViewerClient initialDoc={initialDoc} pageUrl={pageUrl} breadcrumbLd={breadcrumbLd} />;
 }

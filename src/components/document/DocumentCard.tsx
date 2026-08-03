@@ -6,7 +6,7 @@ import { FileText, Download, Eye, ArrowUpRight, FileArchive } from "lucide-react
 import { Badge } from "@/components/ui/badge";
 import { CategoryBadge } from "@/components/ui/category-badge";
 import { PdfThumbnail } from "@/components/document/PdfThumbnail";
-import { getFileUrl } from "@/lib/api";
+import { getThumbnailUrl } from "@/lib/api";
 
 interface Doc {
   id: string;
@@ -16,6 +16,7 @@ interface Doc {
   fileType: string;
   fileSize?: number;
   storageUrl?: string;
+  thumbnailUrl?: string;
   views: number;
   downloads: number;
   level?: { name: string };
@@ -26,8 +27,8 @@ interface Doc {
 
 export function DocumentCard({ doc, index = 0 }: { doc: Doc; index?: number }) {
   const href = doc.slug ? `/documents/${doc.slug}` : `/docs/${doc.id}`;
-  const isPdf = doc.fileType === "pdf" && doc.storageUrl;
-  const pdfUrl = isPdf ? getFileUrl(doc.storageUrl) : null;
+  const isPdf = doc.fileType === "pdf";
+  const isZip = doc.fileType === "zip";
 
   return (
     <motion.div
@@ -40,11 +41,9 @@ export function DocumentCard({ doc, index = 0 }: { doc: Doc; index?: number }) {
         className="group relative block overflow-hidden rounded-2xl border border-gray-100 bg-white transition-all duration-300 hover:-translate-y-1 hover:border-[#ad46ff] hover:shadow-xl hover:shadow-[#ad46ff]/10"
       >
         <div className="absolute inset-0 bg-gradient-to-br from-[#ad46ff]/[0.04] via-transparent to-purple-500/[0.02] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-        {(pdfUrl || doc.fileType === "zip") && (
+        {(isPdf || isZip) && (
           <div className="relative overflow-hidden">
-            {pdfUrl ? (
-              <PdfThumbnail url={pdfUrl} />
-            ) : (
+            {isZip ? (
               <div className="flex h-[180px] items-center justify-center bg-gradient-to-br from-amber-50 to-orange-100">
                 <div className="flex flex-col items-center gap-2">
                   <div className="relative">
@@ -54,6 +53,8 @@ export function DocumentCard({ doc, index = 0 }: { doc: Doc; index?: number }) {
                   <span className="text-xs font-medium text-orange-600">Archive ZIP</span>
                 </div>
               </div>
+            ) : (
+              <PdfThumbnail src={getThumbnailUrl(doc)} alt={doc.title} />
             )}
             <div className="absolute inset-0 flex items-center justify-center bg-black/0 transition-all duration-300 group-hover:bg-black/10">
               <span className="flex h-10 w-10 -translate-y-2 items-center justify-center rounded-full bg-white/90 opacity-0 shadow-lg backdrop-blur-sm transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">

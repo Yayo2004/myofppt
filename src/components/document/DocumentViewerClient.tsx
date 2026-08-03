@@ -11,12 +11,21 @@ import { CategoryBadge } from "@/components/ui/category-badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatFileSize, formatDate } from "@/lib/utils";
 import { DocumentCard } from "@/components/document/DocumentCard";
-import { api, getFileUrl } from "@/lib/api";
+import { api, getFileDownloadUrl } from "@/lib/api";
+import type { AppDoc } from "@/types/document";
 
-export default function DocumentViewerClient({ breadcrumbLd }: { breadcrumbLd?: string }) {
+export default function DocumentViewerClient({
+  initialDoc,
+  pageUrl,
+  breadcrumbLd,
+}: {
+  initialDoc?: AppDoc;
+  pageUrl?: string;
+  breadcrumbLd?: string;
+}) {
   const { slug } = useParams<{ slug: string }>();
   const router = useRouter();
-  const { data: doc, isLoading } = useDocument(slug);
+  const { data: doc, isLoading } = useDocument(slug, initialDoc);
   const [showPreview, setShowPreview] = useState(true);
 
   useEffect(() => {
@@ -44,7 +53,7 @@ export default function DocumentViewerClient({ breadcrumbLd }: { breadcrumbLd?: 
     );
   }
 
-  const fileUrl = getFileUrl(doc.storageUrl) || `/files/${doc.fileName}`;
+  const fileUrl = getFileDownloadUrl(doc);
 
   return (
     <div className="mx-auto max-w-5xl px-4 pb-8 pt-28">
@@ -155,12 +164,11 @@ export default function DocumentViewerClient({ breadcrumbLd }: { breadcrumbLd?: 
             "@type": "EducationalOccupationalCredential",
             name: doc.title,
             description: doc.description,
-            url: typeof window !== "undefined" ? window.location.href : "",
+            url: pageUrl || (typeof window !== "undefined" ? window.location.href : ""),
             educationalLevel: doc.level?.name || doc.levelName,
             educationalProgramMode: doc.filiere?.name || doc.filiereName,
             teaches: doc.module?.name || doc.moduleName,
             credentialCategory: doc.category?.name || doc.categoryName,
-            image: doc.fileType !== "zip" ? getFileUrl(doc.storageUrl) : undefined,
           }),
         }}
       />
