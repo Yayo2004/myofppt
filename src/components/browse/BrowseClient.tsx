@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Search, ArrowLeft } from "lucide-react";
 import { useDocuments } from "@/hooks/use-documents";
@@ -28,17 +28,34 @@ function BrowsePage({ initialData }: { initialData?: DocumentsPage | null }) {
   const [query, setQuery] = useState(searchParams.get("q") || "");
   const [levelId, setLevelId] = useState(searchParams.get("levelId") || "");
   const [filiereId, setFiliereId] = useState(searchParams.get("filiereId") || "");
+  const [moduleId, setModuleId] = useState(searchParams.get("moduleId") || "");
   const [categoryId, setCategoryId] = useState(searchParams.get("categoryId") || "");
   const [sort, setSort] = useState(searchParams.get("sort") || "latest");
   const [page, setPage] = useState(1);
   const [mobileOpen, setMobileOpen] = useState(false);
 
+  const urlLevelId = searchParams.get("levelId") || "";
+  const urlFiliereId = searchParams.get("filiereId") || "";
+  const urlModuleId = searchParams.get("moduleId") || "";
+  const urlCategoryId = searchParams.get("categoryId") || "";
+  const urlSort = searchParams.get("sort") || "latest";
+
+  useEffect(() => {
+    setLevelId(urlLevelId);
+    setFiliereId(urlFiliereId);
+    setModuleId(urlModuleId);
+    setCategoryId(urlCategoryId);
+    setSort(urlSort);
+    setPage(1);
+  }, [urlLevelId, urlFiliereId, urlModuleId, urlCategoryId, urlSort]);
+
   const filters = { levelId, filiereId, categoryId, sort };
-  const activeFilterCount = [levelId, filiereId, categoryId].filter(Boolean).length;
+  const activeFilterCount = [levelId, filiereId, moduleId, categoryId].filter(Boolean).length;
 
   function handleFilterChange(key: string, value: string) {
     if (key === "levelId") setLevelId(value);
     else if (key === "filiereId") setFiliereId(value);
+    else if (key === "moduleId") setModuleId(value);
     else if (key === "categoryId") setCategoryId(value);
     else if (key === "sort") setSort(value);
     setPage(1);
@@ -47,6 +64,7 @@ function BrowsePage({ initialData }: { initialData?: DocumentsPage | null }) {
   function clearFilters() {
     setLevelId("");
     setFiliereId("");
+    setModuleId("");
     setCategoryId("");
     setPage(1);
   }
@@ -55,6 +73,7 @@ function BrowsePage({ initialData }: { initialData?: DocumentsPage | null }) {
   if (query.trim()) params.q = query.trim();
   if (levelId) params.levelId = levelId;
   if (filiereId) params.filiereId = filiereId;
+  if (moduleId) params.moduleId = moduleId;
   if (categoryId) params.categoryId = categoryId;
 
   const { data, isLoading, isFetching } = useDocuments({ ...params, sort, page, limit: 20 } as any, initialData);
@@ -103,6 +122,14 @@ function BrowsePage({ initialData }: { initialData?: DocumentsPage | null }) {
               <span className="inline-flex items-center gap-1.5 rounded-full border border-purple-200 bg-purple-50 px-3 py-1.5 text-xs font-medium text-purple-700">
                 Filière sélectionnée
                 <button onClick={() => handleFilterChange("filiereId", "")} className="ml-0.5 rounded-full p-0.5 transition-colors hover:bg-purple-200">
+                  <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                </button>
+              </span>
+            )}
+            {moduleId && (
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-purple-200 bg-purple-50 px-3 py-1.5 text-xs font-medium text-purple-700">
+                Module sélectionné
+                <button onClick={() => handleFilterChange("moduleId", "")} className="ml-0.5 rounded-full p-0.5 transition-colors hover:bg-purple-200">
                   <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
                 </button>
               </span>
