@@ -12,6 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { formatFileSize, formatDate } from "@/lib/utils";
 import { DocumentCard } from "@/components/document/DocumentCard";
 import { api, getFileDownloadUrl } from "@/lib/api";
+import { resolveDescription } from "@/lib/description";
 import type { AppDoc } from "@/types/document";
 
 export default function DocumentViewerClient({
@@ -54,6 +55,7 @@ export default function DocumentViewerClient({
   }
 
   const fileUrl = getFileDownloadUrl(doc);
+  const description = resolveDescription(doc);
 
   return (
     <div className="mx-auto max-w-5xl px-4 pb-8 pt-28">
@@ -77,9 +79,9 @@ export default function DocumentViewerClient({
           {doc.module && <Badge variant="outline">{doc.module.name || doc.moduleName}</Badge>}
         </div>
         <h1 className="text-3xl font-bold text-gray-900">{doc.title}</h1>
-        {doc.description && (
+        {description && (
           <div className="mt-2 text-lg text-gray-600 whitespace-pre-line leading-relaxed">
-            {doc.description}
+            {description}
           </div>
         )}
       </div>
@@ -163,7 +165,7 @@ export default function DocumentViewerClient({
             "@context": "https://schema.org",
             "@type": "EducationalOccupationalCredential",
             name: doc.title,
-            description: doc.description,
+            description,
             url: pageUrl || (typeof window !== "undefined" ? window.location.href : ""),
             educationalLevel: doc.level?.name || doc.levelName,
             educationalProgramMode: doc.filiere?.name || doc.filiereName,

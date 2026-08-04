@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { CategoryBadge } from "@/components/ui/category-badge";
 import { PdfThumbnail } from "@/components/document/PdfThumbnail";
 import { getThumbnailUrl } from "@/lib/api";
+import { resolveDescription } from "@/lib/description";
 
 interface Doc {
   id: string;
@@ -30,6 +31,7 @@ export function DocumentCard({ doc, index = 0 }: { doc: Doc; index?: number }) {
   const href = doc.slug ? `/documents/${doc.slug}` : `/docs/${doc.id}`;
   const isPdf = doc.fileType === "pdf";
   const isZip = doc.fileType === "zip";
+  const description = resolveDescription(doc);
 
   return (
     <motion.div
@@ -68,8 +70,8 @@ export function DocumentCard({ doc, index = 0 }: { doc: Doc; index?: number }) {
           <h3 className="font-semibold text-gray-900 transition-colors duration-300 group-hover:text-[#ad46ff] line-clamp-1">
             {doc.title}
           </h3>
-          {doc.description && (
-            <p className="mt-1 text-sm text-gray-500 line-clamp-2">{doc.description}</p>
+          {description && (
+            <p className="mt-1 text-sm text-gray-500 line-clamp-2">{description}</p>
           )}
           <div className="mt-2 flex flex-wrap items-center gap-1.5">
             {doc.category && <CategoryBadge name={doc.category.name} />}

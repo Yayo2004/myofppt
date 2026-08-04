@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import DocumentViewerClient from "@/components/document/DocumentViewerClient";
 import { siteConfig } from "@/config/site";
+import { resolveDescription } from "@/lib/description";
 import type { AppDoc } from "@/types/document";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
@@ -28,13 +29,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const filiere = doc.filiere?.name || doc.filiereName || "";
   const moduleName = doc.module?.name || doc.moduleName || "";
-  const category = doc.category?.name || doc.categoryName || "";
 
   const title = doc.seoTitle || `${doc.title}${filiere ? ` — ${filiere}` : ""}${moduleName ? `, ${moduleName}` : ""}`;
-  const description = doc.seoDesc
-    || (doc.description
-      ? doc.description.slice(0, 155)
-      : `Consultez et téléchargez "${doc.title}" (${category}) pour la filière ${filiere}${moduleName ? `, module ${moduleName}` : ""}. Document pédagogique OFPPT gratuit.`);
+  const description = doc.seoDesc || resolveDescription(doc).slice(0, 155);
 
   const pageUrl = `${siteConfig.url}/documents/${slug}`;
 
