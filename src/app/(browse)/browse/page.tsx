@@ -33,7 +33,10 @@ async function getInitialDocuments(searchParams: Record<string, string | string[
     const res = await fetch(url.toString(), { cache: "no-store" });
     if (!res.ok) return null;
     const data = await res.json();
-    const docs = (data.docs || []).map(({ storageUrl, thumbnailUrl, ...rest }: any) => rest);
+    const docs = (data.docs || []).map(({ storageUrl, thumbnailUrl, ...rest }: any) => ({
+      ...rest,
+      hasThumbnail: Boolean(thumbnailUrl),
+    }));
     return { ...data, docs, params };
   } catch {
     return null;

@@ -8,6 +8,7 @@ export interface AppDoc {
   fileType: string;
   storageUrl?: string | null;
   thumbnailUrl?: string | null;
+  hasThumbnail?: boolean;
   views: number;
   downloads: number;
   createdAt?: string;

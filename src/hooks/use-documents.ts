@@ -1,4 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
+import { useRef } from "react";
 import { api } from "@/lib/api";
 
 interface QueryParams {
@@ -13,6 +14,9 @@ interface QueryParams {
 }
 
 export function useDocuments(params: QueryParams = {}, initialData?: any) {
+  const firstParamsRef = useRef(params);
+  const isInitial = JSON.stringify(params) === JSON.stringify(firstParamsRef.current);
+
   return useQuery({
     queryKey: ["documents", params],
     queryFn: () =>
@@ -21,7 +25,8 @@ export function useDocuments(params: QueryParams = {}, initialData?: any) {
         page: String(params.page || 1),
         limit: String(params.limit || 20),
       }),
-    initialData,
+    placeholderData: isInitial ? undefined : keepPreviousData,
+    initialData: isInitial ? initialData : undefined,
   });
 }
 

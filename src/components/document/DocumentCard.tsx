@@ -17,6 +17,7 @@ interface Doc {
   fileSize?: number;
   storageUrl?: string;
   thumbnailUrl?: string;
+  hasThumbnail?: boolean;
   views: number;
   downloads: number;
   level?: { name: string };

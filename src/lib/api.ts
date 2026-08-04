@@ -4,8 +4,8 @@ export function getFileDownloadUrl(doc: { id: string }): string {
   return `/api/download/${doc.id}`;
 }
 
-export function getThumbnailUrl(doc: { id: string; thumbnailUrl?: string | null }): string | null {
-  if (!doc.thumbnailUrl) return null;
+export function getThumbnailUrl(doc: { id: string; thumbnailUrl?: string | null; hasThumbnail?: boolean }): string | null {
+  if (!(doc.hasThumbnail ?? Boolean(doc.thumbnailUrl))) return null;
   return `/api/thumbnail/${doc.id}`;
 }
 
