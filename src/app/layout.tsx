@@ -19,6 +19,9 @@ export const metadata: Metadata = {
   alternates: {
     canonical: siteConfig.url,
   },
+  verification: {
+    google: "V7Qer5Py01Es6R3RrS1sXBDQuY9EWzopwLt74zkOqf8",
+  },
   openGraph: {
     title: `${siteConfig.name} — Ressources Pédagogiques OFPPT`,
     description: siteConfig.description,
