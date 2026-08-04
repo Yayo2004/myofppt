@@ -29,7 +29,7 @@ function BrowsePage({ initialData }: { initialData?: DocumentsPage | null }) {
   const [levelId, setLevelId] = useState(searchParams.get("levelId") || "");
   const [filiereId, setFiliereId] = useState(searchParams.get("filiereId") || "");
   const [categoryId, setCategoryId] = useState(searchParams.get("categoryId") || "");
-  const [sort, setSort] = useState(searchParams.get("sort") || "popular");
+  const [sort, setSort] = useState(searchParams.get("sort") || "latest");
   const [page, setPage] = useState(1);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -57,7 +57,7 @@ function BrowsePage({ initialData }: { initialData?: DocumentsPage | null }) {
   if (filiereId) params.filiereId = filiereId;
   if (categoryId) params.categoryId = categoryId;
 
-  const { data, isLoading } = useDocuments({ ...params, sort, page, limit: 20 } as any, initialData);
+  const { data, isLoading, isFetching } = useDocuments({ ...params, sort, page, limit: 20 } as any, initialData);
 
   function applySearch() {
     setPage(1);
@@ -149,10 +149,20 @@ function BrowsePage({ initialData }: { initialData?: DocumentsPage | null }) {
             ) : (
               <>
                 <p className="mb-4 text-sm text-gray-500">{data.total} document{data.total > 1 ? "s" : ""}</p>
-                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                  {data.docs.map((doc: any, i: number) => (
-                    <DocumentCard key={doc.id} doc={doc} index={i} />
-                  ))}
+                <div className="relative">
+                  <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                    {data.docs.map((doc: any, i: number) => (
+                      <DocumentCard key={doc.id} doc={doc} index={i} />
+                    ))}
+                  </div>
+                  {isFetching && (
+                    <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-white/60 backdrop-blur-[1px]">
+                      <div className="flex flex-col items-center gap-2">
+                        <div className="h-10 w-10 animate-spin rounded-full border-4 border-purple-200 border-t-purple-600" />
+                        <span className="text-sm font-medium text-purple-600">Chargement…</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Pagination */}
@@ -178,7 +188,7 @@ function BrowsePage({ initialData }: { initialData?: DocumentsPage | null }) {
                     <div className="mt-10 flex items-center justify-center gap-1.5">
                       <button
                         onClick={() => setPage((p) => Math.max(1, p - 1))}
-                        disabled={page <= 1}
+                        disabled={page <= 1 || isFetching}
                         className="flex h-10 items-center gap-1 rounded-xl border border-gray-200 bg-white px-3 text-sm font-medium text-gray-600 transition-all hover:bg-gray-50 hover:border-gray-300 disabled:opacity-30 disabled:pointer-events-none"
                       >
                         <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 19l-7-7 7-7"/></svg>
@@ -192,6 +202,7 @@ function BrowsePage({ initialData }: { initialData?: DocumentsPage | null }) {
                             <button
                               key={p}
                               onClick={() => setPage(p)}
+                              disabled={isFetching}
                               className={cn(
                                 "h-10 min-w-[40px] rounded-xl text-sm font-medium transition-all duration-200",
                                 p === page
@@ -206,7 +217,7 @@ function BrowsePage({ initialData }: { initialData?: DocumentsPage | null }) {
                       </div>
                       <button
                         onClick={() => setPage((p) => Math.min(data.totalPages, p + 1))}
-                        disabled={page >= data.totalPages}
+                        disabled={page >= data.totalPages || isFetching}
                         className="flex h-10 items-center gap-1 rounded-xl border border-gray-200 bg-white px-3 text-sm font-medium text-gray-600 transition-all hover:bg-gray-50 hover:border-gray-300 disabled:opacity-30 disabled:pointer-events-none"
                       >
                         <span className="hidden sm:inline">Suivant</span>

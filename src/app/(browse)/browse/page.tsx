@@ -18,7 +18,7 @@ async function getInitialDocuments(searchParams: Record<string, string | string[
   const levelId = get("levelId") || "";
   const filiereId = get("filiereId") || "";
   const categoryId = get("categoryId") || "";
-  const sort = get("sort") || "popular";
+  const sort = get("sort") || "latest";
   const page = Math.max(1, Number(get("page")) || 1);
 
   const params: Record<string, string> = { sort, page: String(page), limit: "20" };
